@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: luminatv-backend
+    rootDir: luminatv
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn luminatv.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+    plan: free
