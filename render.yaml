@@ -3,7 +3,7 @@ services:
     name: luminatv-backend
     rootDir: luminatv
     runtime: python
-    buildCommand: "./build.sh"
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate"
     startCommand: "gunicorn luminatv.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
