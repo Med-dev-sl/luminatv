@@ -1,0 +1,51 @@
+/* Override Ant Design Menu Styles for Custom Underline Animation */
+
+/* Reset default active/selected background if desired to emphasize underline */
+.ant-menu.ant-menu-dark .ant-menu-item-selected {
+    background-color: transparent !important;
+    /* Remove huge blue block if needed */
+}
+
+/* Base style for menu items to support pseudo-element */
+.ant-menu-item,
+.ant-menu-submenu-title {
+    position: relative;
+    overflow: hidden;
+    /* Ensure underline stays within bounds if needed, or removing it if we want it to flow */
+}
+
+/* The Underline Animation using ::after */
+.ant-menu-item::after,
+.ant-menu-submenu-title::after {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 0 !important;
+    height: 3px !important;
+    /* Thickness of the underline */
+    background-color: #0047AB !important;
+    /* Deep Blue Color */
+    transition: width 0.3s ease-in-out !important;
+    border-right: none !important;
+    /* Ant Design sometimes uses border-right for selection */
+    z-index: 10;
+}
+
+/* Hover State */
+.ant-menu-item:hover::after,
+.ant-menu-submenu-title:hover::after {
+    width: 100% !important;
+}
+
+/* Active/Selected State */
+.ant-menu-item-selected::after {
+    width: 100% !important;
+    background-color: #0047AB !important;
+}
+
+/* Optional: Text color change on hover/active if not handled by Ant Design correctly with dark theme */
+.ant-menu.ant-menu-dark .ant-menu-item-selected,
+.ant-menu-submenu-selected>.ant-menu-submenu-title {
+    color: white !important;
+}
