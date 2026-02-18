@@ -9,6 +9,17 @@ const LoginComponent = () => {
     const [errorMsg, setErrorMsg] = useState('');
     // const navigate = useNavigate(); // handled by App.js state change
 
+    // Add CSS for placeholder styling
+    const placeholderStyle = `
+        input::placeholder {
+            color: #000000;
+            font-size: 1rem;
+        }
+        input:focus::placeholder {
+            color: rgba(0, 0, 0, 0.7);
+        }
+    `;
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -42,39 +53,64 @@ const LoginComponent = () => {
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             zIndex: 1000,
+            paddingRight: '10%',
         },
-        container: {
-            padding: '2rem',
+        logo: {
+            width: '150%',
+            maxWidth: '250px',
+            height: 'auto',
+            marginBottom: '2rem',
+            position: 'absolute',
+            top: '2rem',
+            left: '70%',
+            transform: 'translateX(-50%)',
+        },
+        form: {
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
             maxWidth: '350px',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            borderRadius: '8px',
-            backdropFilter: 'blur(5px)',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            marginRight: '10%',
+        },
+        inputWrapper: {
+            position: 'relative',
+            marginBottom: '2rem',
         },
         input: {
-            marginBottom: '1rem',
-            padding: '0.75rem',
-            borderRadius: '0px',
+            width: '100%',
+            padding: '0.75rem 0',
+            backgroundColor: 'transparent',
             border: 'none',
+            borderBottom: '2px solid #4a9eff',
             fontSize: '1rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            color: '#000000',
+            outline: 'none',
+            transition: 'border-color 0.3s ease',
+        },
+        inputFocus: {
+            borderBottom: '2px solid #4a9eff',
+        },
+        label: {
+            background: 'linear-gradient(135deg, #000000 0%, #001a4d 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: '0.75rem',
+            fontSize: '1rem',
+            display: 'block',
+            fontWeight: '500',
+            letterSpacing: '0.5px',
         },
         title: {
             color: 'white',
             textAlign: 'center',
-            marginBottom: '1.5rem',
+            marginBottom: '2rem',
             marginTop: 0,
-        },
-        label: {
-            color: 'white',
-            marginBottom: '0.5rem',
-            fontSize: '0.9rem',
+            fontSize: '2rem',
         },
         error: {
             color: '#ff6b6b',
@@ -86,10 +122,12 @@ const LoginComponent = () => {
 
     return (
         <div style={styles.backgroundWrapper}>
-            <div style={styles.container}>
-                <h2 style={styles.title}>LuminaTV Login</h2>
-                {errorMsg && <div style={styles.error}>{errorMsg}</div>}
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column' }}>
+            <style>{placeholderStyle}</style>
+            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="LuminaTV Logo" style={styles.logo} />
+            <h2 style={styles.title}>LuminaTV Login</h2>
+            {errorMsg && <div style={styles.error}>{errorMsg}</div>}
+            <form onSubmit={handleLogin} style={styles.form}>
+                <div style={styles.inputWrapper}>
                     <label style={styles.label}>Email</label>
                     <input
                         name="email"
@@ -100,6 +138,8 @@ const LoginComponent = () => {
                         style={styles.input}
                         required
                     />
+                </div>
+                <div style={styles.inputWrapper}>
                     <label style={styles.label}>Password</label>
                     <input
                         name="password"
@@ -110,11 +150,11 @@ const LoginComponent = () => {
                         style={styles.input}
                         required
                     />
-                    <Button type="submit" loading={loading}>
-                        Sign In
-                    </Button>
-                </form>
-            </div>
+                </div>
+                <Button type="submit" loading={loading}>
+                    Sign In
+                </Button>
+            </form>
         </div>
     );
 };

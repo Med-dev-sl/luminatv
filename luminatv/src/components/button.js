@@ -2,7 +2,7 @@
 const Button = ({ children, type = 'button', onClick, style }) => {
     const defaultStyle = {
         padding: '0.75rem 1.5rem',
-        backgroundColor: '#7260d4',
+        background: 'linear-gradient(135deg, #001a4d 0%, #000000 100%)',
         color: '#ffffff',
         border: 'none',
         borderRadius: '4px',
