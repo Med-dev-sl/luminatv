@@ -34,6 +34,19 @@ const LoginComponent = () => {
             border-radius: 50%;
             animation: spinGradient 1s linear infinite;
         }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .login-form {
+            animation: slideInRight 0.6s ease-out;
+        }
     `;
 
     const handleChange = (e) => {
@@ -91,6 +104,7 @@ const LoginComponent = () => {
             width: '100%',
             maxWidth: '350px',
             marginRight: '10%',
+            animation: 'slideInRight 0.6s ease-out',
         },
         inputWrapper: {
             position: 'relative',

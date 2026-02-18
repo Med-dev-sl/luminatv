@@ -124,10 +124,14 @@ const Dashboard = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <span style={{ fontWeight: 500 }}>Admin User</span>
                         <Button
-                            type="primary"
-                            danger
                             icon={<LogoutOutlined />}
                             onClick={handleLogout}
+                            style={{
+                                background: 'linear-gradient(135deg, #001a4d 0%, #000000 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                fontWeight: '500'
+                            }}
                         >
                             Logout
                         </Button>
