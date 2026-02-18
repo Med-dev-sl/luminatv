@@ -4,6 +4,10 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import './App.css';
 import LoginComponent from './components/LoginComponent';
 import Dashboard from './components/admin/dashboard';
+import AddMovies from './components/admin/movies/addMovies';
+import DeleteMovies from './components/admin/movies/deleteMovies';
+import EditMovies from './components/admin/movies/editMovies';
+import UpdateMovies from './components/admin/movies/updateMovies';
 import { supabase } from './supabaseClient';
 
 function App() {
@@ -34,7 +38,12 @@ function App() {
           <Route
             path="/admin/dashboard"
             element={session ? <Dashboard /> : <Navigate to="/" />}
-          />
+          >
+            <Route path="movies/add" element={<AddMovies />} />
+            <Route path="movies/delete" element={<DeleteMovies />} />
+            <Route path="movies/edit" element={<EditMovies />} />
+            <Route path="movies/update" element={<UpdateMovies />} />
+          </Route>
         </Routes>
       </div>
     </Router>

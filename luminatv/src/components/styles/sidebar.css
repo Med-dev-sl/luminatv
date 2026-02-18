@@ -1,0 +1,122 @@
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #000000;
+    /* Dark background */
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    color: #7260d4;
+    /* Brand color */
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.sidebar-link {
+    display: block;
+    padding: 10px 15px;
+    color: #cccccc;
+    text-decoration: none;
+    position: relative;
+    /* Needed for pseudo-element positioning */
+    transition: color 0.3s ease;
+}
+
+/* Underline Animation */
+.sidebar-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #7260d4;
+    transition: width 0.3s ease;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+    color: white;
+    /* Removed background-color change */
+}
+
+.sidebar-link:hover::after,
+.sidebar-link.active::after {
+    width: 100%;
+}
+
+/* Dropdown Styles */
+.dropdown-container {
+    background-color: #2c2c2c;
+    /* Match sidebar background to blend in */
+    margin-left: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+    border-left: 1px solid #444;
+    /* Subtle separation */
+}
+
+.dropdown-container.show {
+    max-height: 500px;
+    /* Increased to ensure it fits */
+    transition: max-height 0.5s ease-in;
+}
+
+.dropdown-item {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    color: #ddd;
+    display: block;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.dropdown-item::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #7260d4;
+    transition: width 0.3s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item.active {
+    color: white;
+    background-color: transparent;
+    /* Ensure no background change */
+}
+
+.dropdown-item:hover::after,
+.dropdown-item.active::after {
+    width: 100%;
+}
+
+.menu-item-with-arrow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

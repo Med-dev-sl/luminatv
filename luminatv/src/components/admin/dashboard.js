@@ -1,7 +1,7 @@
-
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import '../styles/button.css';
+import Sidebar from './sidebar';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -11,23 +11,34 @@ const Dashboard = () => {
         navigate('/');
     };
 
-    const containerStyle = {
-        padding: '2rem',
-        color: 'white',
-        backgroundColor: '#1a1a1a',
-        minHeight: '100vh',
+    const dashboardContainerStyle = {
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        backgroundColor: '#000000ff',
+        color: 'white',
+    };
+
+    const contentStyle = {
+        flex: 1,
+        padding: '2rem',
+        overflowY: 'auto',
+        height: '100%',
     };
 
     return (
-        <div style={containerStyle}>
-            <h1>Admin Dashboard</h1>
-            <p>Welcome, Admin!</p>
-            <button onClick={handleLogout} style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '5px' }}>
-                Logout
-            </button>
+        <div style={dashboardContainerStyle}>
+            <Sidebar />
+            <div style={contentStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h1>Admin Dashboard</h1>
+                    <button onClick={handleLogout} style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }}>
+                        Logout
+                    </button>
+                </div>
+                <Outlet />
+            </div>
         </div>
     );
 };
