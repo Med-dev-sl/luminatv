@@ -9,7 +9,7 @@ const LoginComponent = () => {
     const [errorMsg, setErrorMsg] = useState('');
     // const navigate = useNavigate(); // handled by App.js state change
 
-    // Add CSS for placeholder styling
+    // Add CSS for placeholder styling and loading spinner
     const placeholderStyle = `
         input::placeholder {
             color: #000000;
@@ -17,6 +17,22 @@ const LoginComponent = () => {
         }
         input:focus::placeholder {
             color: rgba(0, 0, 0, 0.7);
+        }
+        @keyframes spinGradient {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid;
+            border-image: linear-gradient(135deg, #001a4d 0%, #000000 100%) 1;
+            border-radius: 50%;
+            animation: spinGradient 1s linear infinite;
         }
     `;
 
@@ -92,7 +108,7 @@ const LoginComponent = () => {
             transition: 'border-color 0.3s ease',
         },
         inputFocus: {
-            borderBottom: '2px solid #4a9eff',
+            borderBottom: 'linear-gradient(135deg, #001a4d 0%, #000000 100%)',
         },
         label: {
             background: 'linear-gradient(135deg, #000000 0%, #001a4d 100%)',
@@ -117,6 +133,12 @@ const LoginComponent = () => {
             marginBottom: '1rem',
             textAlign: 'center',
             fontSize: '0.9rem',
+        },
+        loadingContainer: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '1rem',
         }
     };
 
@@ -126,6 +148,8 @@ const LoginComponent = () => {
             <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="LuminaTV Logo" style={styles.logo} />
             <h2 style={styles.title}>LuminaTV Login</h2>
             {errorMsg && <div style={styles.error}>{errorMsg}</div>}
+            {loading && <div style={styles.loadingContainer}><div className="loading-spinner"></div></div>}
+            {!loading && (
             <form onSubmit={handleLogin} style={styles.form}>
                 <div style={styles.inputWrapper}>
                     <label style={styles.label}>Email</label>
@@ -155,6 +179,7 @@ const LoginComponent = () => {
                     Sign In
                 </Button>
             </form>
+            )}
         </div>
     );
 };

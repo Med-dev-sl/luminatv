@@ -10,7 +10,7 @@ import {
     SyncOutlined,
     VideoCameraOutlined
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Button, Layout, Menu, Modal, theme } from 'antd';
 import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
@@ -27,8 +27,19 @@ const Dashboard = () => {
     } = theme.useToken();
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate('/');
+        Modal.confirm({
+            title: 'Confirm Logout',
+            content: 'Are you sure you want to logout?',
+            okText: 'Yes',
+            cancelText: 'No',
+            onOk() {
+                supabase.auth.signOut();
+                navigate('/');
+            },
+            onCancel() {
+                // User clicked No, do nothing
+            },
+        });
     };
 
     const menuItems = [
