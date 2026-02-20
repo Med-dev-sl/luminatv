@@ -1,5 +1,5 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Card, DatePicker, Form, Input, InputNumber, message, Select, Spin, Upload } from 'antd';
+import { PlusOutlined, CloudUploadOutlined, PictureOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { Button, Card, DatePicker, Form, Input, InputNumber, message, Select, Spin, Upload, Progress, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../supabaseClient';
 
@@ -10,11 +10,28 @@ const AddMovies = () => {
     const [genres, setGenres] = useState([]);
     const [posterFile, setPosterFile] = useState(null);
     const [posterPreview, setPosterPreview] = useState(null);
+    const [trailerFile, setTrailerFile] = useState(null);
+    const [videoFile, setVideoFile] = useState(null);
+    const [casts, setCasts] = useState([]);
 
     useEffect(() => {
         fetchCategories();
         fetchGenres();
+        fetchCasts();
     }, []);
+
+    const fetchCasts = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('casts')
+                .select('id, name')
+                .eq('is_active', true);
+            if (error) throw error;
+            setCasts(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const fetchCategories = async () => {
         try {
@@ -69,6 +86,54 @@ const AddMovies = () => {
         }
     };
 
+    const handleTrailerUpload = async (file) => {
+        if (!file) return null;
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('Movie_Trailers')
+                .upload(`trailers/${fileName}`, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('Movie_Trailers')
+                .getPublicUrl(`trailers/${fileName}`);
+
+            return data.publicUrl;
+        } catch (error) {
+            message.error('Failed to upload trailer');
+            console.error(error);
+            return null;
+        }
+    };
+
+    const handleVideoUpload = async (file) => {
+        if (!file) return null;
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('Movie_Videos')
+                .upload(`videos/${fileName}`, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('Movie_Videos')
+                .getPublicUrl(`videos/${fileName}`);
+
+            return data.publicUrl;
+        } catch (error) {
+            message.error('Failed to upload video');
+            console.error(error);
+            return null;
+        }
+    };
+
     const onSubmit = async (values) => {
         setLoading(true);
         try {
@@ -77,6 +142,25 @@ const AddMovies = () => {
             if (posterFile) {
                 posterUrl = await handlePosterUpload(posterFile);
                 if (!posterUrl) {
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Upload trailer and video if provided
+            let trailerUrl = null;
+            if (trailerFile) {
+                trailerUrl = await handleTrailerUpload(trailerFile);
+                if (!trailerUrl) {
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            let videoUrl = null;
+            if (videoFile) {
+                videoUrl = await handleVideoUpload(videoFile);
+                if (!videoUrl) {
                     setLoading(false);
                     return;
                 }
@@ -129,6 +213,69 @@ const AddMovies = () => {
                 if (genreError) throw genreError;
             }
 
+            // Insert poster record into movie_posters table
+            if (posterUrl) {
+                const { error: posterError } = await supabase
+                    .from('movie_posters')
+                    .insert([
+                        {
+                            movie_id: movieId,
+                            title: values.title,
+                            poster_url: posterUrl,
+                            poster_type: values.poster_type || 'poster',
+                            is_primary: true,
+                        }
+                    ]);
+                if (posterError) throw posterError;
+            }
+
+            // Insert trailer record
+            if (trailerUrl) {
+                const { error: trError } = await supabase
+                    .from('movie_trailers')
+                    .insert([
+                        {
+                            movie_id: movieId,
+                            title: values.trailer_title || `${values.title} Trailer`,
+                            video_url: trailerUrl,
+                            is_primary: true,
+                            transcoding_status: 'completed',
+                        }
+                    ]);
+                if (trError) throw trError;
+            }
+
+            // Insert video record
+            if (videoUrl) {
+                const { error: vError } = await supabase
+                    .from('movie_videos')
+                    .insert([
+                        {
+                            movie_id: movieId,
+                            title: values.video_title || `${values.title} Full`,
+                            video_url: videoUrl,
+                            is_primary: true,
+                            transcoding_status: 'completed',
+                        }
+                    ]);
+                if (vError) throw vError;
+            }
+
+            // Insert movie_casts records
+            if (values.casts && values.casts.length > 0) {
+                const castRecords = values.casts.map((castId, idx) => ({
+                    movie_id: movieId,
+                    cast_id: castId,
+                    cast_order: idx + 1,
+                }));
+
+                const { error: castError } = await supabase
+                    .from('movie_casts')
+                    .insert(castRecords);
+
+                if (castError) throw castError;
+            }
+
             message.success('Movie added successfully!');
             form.resetFields();
             setPosterFile(null);
@@ -150,7 +297,17 @@ const AddMovies = () => {
         reader.onload = () => {
             setPosterPreview(reader.result);
         };
-        reader.readAsArrayBuffer(file);
+        reader.readAsDataURL(file);
+    };
+
+    const handleTrailerChange = (info) => {
+        const file = info.file;
+        setTrailerFile(file);
+    };
+
+    const handleVideoChange = (info) => {
+        const file = info.file;
+        setVideoFile(file);
     };
 
     return (
@@ -252,6 +409,42 @@ const AddMovies = () => {
                             name="revenue"
                         >
                             <InputNumber placeholder="Enter revenue" style={{ width: '100%', backgroundColor: '#2a2a2a', color: '#fff' }} />
+                        </Form.Item>
+
+                        <Form.Item label="Poster Type" name="poster_type">
+                            <Select placeholder="Select poster type" style={{ backgroundColor: '#2a2a2a' }}>
+                                <Select.Option value="poster">Poster</Select.Option>
+                                <Select.Option value="thumbnail">Thumbnail</Select.Option>
+                                <Select.Option value="banner">Banner</Select.Option>
+                            </Select>
+                        </Form.Item>
+
+                        <Form.Item label="Casts" name="casts">
+                            <Select mode="multiple" placeholder="Select cast members" style={{ backgroundColor: '#2a2a2a' }}>
+                                {casts.map(c => (
+                                    <Select.Option key={c.id} value={c.id}>{c.name}</Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+
+                        <Form.Item label="Trailer Title" name="trailer_title">
+                            <Input placeholder="Trailer title" style={{ backgroundColor: '#2a2a2a', color: '#fff' }} />
+                        </Form.Item>
+
+                        <Form.Item label="Upload Trailer" name="trailer">
+                            <Upload beforeUpload={() => false} onChange={handleTrailerChange} accept="video/*" maxCount={1}>
+                                <Button icon={<CloudUploadOutlined />} style={{ backgroundColor: '#4a9eff', color: '#fff', border: 'none' }}>Upload Trailer</Button>
+                            </Upload>
+                        </Form.Item>
+
+                        <Form.Item label="Video Title" name="video_title">
+                            <Input placeholder="Full movie title" style={{ backgroundColor: '#2a2a2a', color: '#fff' }} />
+                        </Form.Item>
+
+                        <Form.Item label="Upload Video" name="video">
+                            <Upload beforeUpload={() => false} onChange={handleVideoChange} accept="video/*" maxCount={1}>
+                                <Button icon={<PlayCircleOutlined />} style={{ backgroundColor: '#4a9eff', color: '#fff', border: 'none' }}>Upload Video</Button>
+                            </Upload>
                         </Form.Item>
 
                         <Form.Item

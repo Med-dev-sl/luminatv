@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Space, message, Table, Upload, Progress } from 'antd';
-import { UploadOutlined, SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, message, Progress, Space, Table, Upload } from 'antd';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../supabaseClient';
 
 const UpdateCategory = () => {

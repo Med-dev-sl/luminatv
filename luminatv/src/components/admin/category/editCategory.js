@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Space, message, Table, Drawer, ColorPicker, InputNumber } from 'antd';
 import { EditOutlined, SearchOutlined } from '@ant-design/icons';
-import { supabase } from '../../../supabaseClient';
+import { Button, Card, ColorPicker, Drawer, Form, Input, InputNumber, message, Space, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../../supabaseClient';
 
 const EditCategory = () => {
     const [form] = Form.useForm();

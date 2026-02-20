@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Space, message, Table, Drawer } from 'antd';
 import { EditOutlined, SearchOutlined } from '@ant-design/icons';
-import { supabase } from '../../../supabaseClient';
+import { Button, Card, Drawer, Form, Input, message, Space, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../../supabaseClient';
 
 const EditGenres = () => {
     const [form] = Form.useForm();

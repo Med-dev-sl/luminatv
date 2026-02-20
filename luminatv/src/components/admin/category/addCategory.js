@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Space, message, ColorPicker, InputNumber } from 'antd';
-import { supabase } from '../../../supabaseClient';
+import { Button, Card, ColorPicker, Form, Input, InputNumber, Space, message } from 'antd';
 import dayjs from 'dayjs';
+import { useState } from 'react';
+import { supabase } from '../../../supabaseClient';
 
 const AddCategory = () => {
     const [form] = Form.useForm();

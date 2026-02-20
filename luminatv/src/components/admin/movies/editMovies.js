@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../../../supabaseClient';
-import { Table, Button, Modal, message, Input, Space, Spin, Card, Drawer, Form, Select, InputNumber, DatePicker } from 'antd';
-import { EditOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, SearchOutlined, CloudUploadOutlined, PictureOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { Button, Card, DatePicker, Drawer, Form, Input, InputNumber, Select, Space, Spin, Table, message, Upload, Tabs, Progress } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { supabase } from '../../../supabaseClient';
 
 const EditMovies = () => {
     const [form] = Form.useForm();
@@ -15,6 +15,12 @@ const EditMovies = () => {
     const [categories, setCategories] = useState([]);
     const [genres, setGenres] = useState([]);
     const [movieGenres, setMovieGenres] = useState([]);
+    const [posters, setPosters] = useState([]);
+    const [trailers, setTrailers] = useState([]);
+    const [videos, setVideos] = useState([]);
+    const [casts, setCasts] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     useEffect(() => {
         fetchMovies();
@@ -77,6 +83,19 @@ const EditMovies = () => {
         }
     };
 
+    const fetchCasts = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('casts')
+                .select('id, name')
+                .eq('is_active', true);
+            if (error) throw error;
+            setCasts(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const fetchMovieGenres = async (movieId) => {
         try {
             const { data, error } = await supabase
@@ -90,9 +109,26 @@ const EditMovies = () => {
         }
     };
 
+    const fetchRelatedData = async (movieId) => {
+        try {
+            const [{ data: pData }, { data: tData }, { data: vData }] = await Promise.all([
+                supabase.from('movie_posters').select('*').eq('movie_id', movieId),
+                supabase.from('movie_trailers').select('*').eq('movie_id', movieId),
+                supabase.from('movie_videos').select('*').eq('movie_id', movieId),
+            ]);
+            setPosters(pData || []);
+            setTrailers(tData || []);
+            setVideos(vData || []);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleEdit = async (movie) => {
         setSelectedMovie(movie);
         await fetchMovieGenres(movie.id);
+        await fetchRelatedData(movie.id);
+        await fetchCasts();
         form.setFieldsValue({
             title: movie.title,
             description: movie.description,
@@ -157,6 +193,135 @@ const EditMovies = () => {
         } catch (error) {
             message.error(error.message || 'Failed to update movie');
             console.error(error);
+        }
+    };
+
+    const uploadMovieVideo = async (file, movieId) => {
+        if (!file) return null;
+        setUploading(true);
+        setUploadProgress(0);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${movieId}-${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('Movie_Videos')
+                .upload(`videos/${fileName}`, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('Movie_Videos')
+                .getPublicUrl(`videos/${fileName}`);
+
+            const { error: dbError } = await supabase
+                .from('movie_videos')
+                .insert([
+                    {
+                        movie_id: movieId,
+                        title: 'Uploaded Video',
+                        video_url: data.publicUrl,
+                        is_primary: true,
+                        transcoding_status: 'completed',
+                    }
+                ]);
+            if (dbError) throw dbError;
+            message.success('Movie video uploaded successfully!');
+            setUploadProgress(100);
+            await fetchRelatedData(movieId);
+            return true;
+        } catch (error) {
+            message.error(error.message || 'Failed to upload video');
+            console.error(error);
+            return false;
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const uploadMovieTrailer = async (file, movieId) => {
+        if (!file) return null;
+        setUploading(true);
+        setUploadProgress(0);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${movieId}-trailer-${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('Movie_Trailers')
+                .upload(`trailers/${fileName}`, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('Movie_Trailers')
+                .getPublicUrl(`trailers/${fileName}`);
+
+            const { error: dbError } = await supabase
+                .from('movie_trailers')
+                .insert([
+                    {
+                        movie_id: movieId,
+                        title: 'Uploaded Trailer',
+                        video_url: data.publicUrl,
+                        is_primary: true,
+                    }
+                ]);
+
+            if (dbError) throw dbError;
+            message.success('Movie trailer uploaded successfully!');
+            setUploadProgress(100);
+            await fetchRelatedData(movieId);
+            return true;
+        } catch (error) {
+            message.error(error.message || 'Failed to upload trailer');
+            console.error(error);
+            return false;
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const uploadMoviePoster = async (file, movieId) => {
+        if (!file) return null;
+        setUploading(true);
+        setUploadProgress(0);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${movieId}-poster-${Date.now()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('Movies_Posters')
+                .upload(`posters/${fileName}`, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('Movies_Posters')
+                .getPublicUrl(`posters/${fileName}`);
+
+            const { error: dbError } = await supabase
+                .from('movie_posters')
+                .insert([
+                    {
+                        movie_id: movieId,
+                        poster_url: data.publicUrl,
+                        poster_type: 'poster',
+                        is_primary: true,
+                    }
+                ]);
+
+            if (dbError) throw dbError;
+            message.success('Movie poster uploaded successfully!');
+            setUploadProgress(100);
+            await fetchRelatedData(movieId);
+            return true;
+        } catch (error) {
+            message.error(error.message || 'Failed to upload poster');
+            console.error(error);
+            return false;
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -361,6 +526,107 @@ const EditMovies = () => {
                         </Button>
                     </Form.Item>
                 </Form>
+
+                <Tabs
+                    items={[
+                        {
+                            key: '1',
+                            label: 'Movie Video',
+                            children: (
+                                <Form layout="vertical" style={{ color: '#fff' }}>
+                                    <Form.Item label="Upload Movie Video">
+                                        <Upload
+                                            beforeUpload={() => false}
+                                            accept="video/*"
+                                            maxCount={1}
+                                            onChange={(info) => {
+                                                if (info.file) {
+                                                    uploadMovieVideo(info.file, selectedMovie?.id);
+                                                }
+                                            }}
+                                        >
+                                            <Button icon={<CloudUploadOutlined />} style={{ backgroundColor: '#4a9eff', color: '#fff', border: 'none' }}>
+                                                Choose Video
+                                            </Button>
+                                        </Upload>
+                                    </Form.Item>
+                                    {uploading && <Progress percent={uploadProgress} />}
+                                    <div style={{ marginTop: 12 }}>
+                                        {videos.map(v => (
+                                            <div key={v.id} style={{ marginBottom: 8 }}>
+                                                <a href={v.video_url} target="_blank" rel="noreferrer" style={{ color: '#fff' }}>{v.title || v.video_url}</a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Form>
+                            ),
+                        },
+                        {
+                            key: '2',
+                            label: 'Movie Trailer',
+                            children: (
+                                <Form layout="vertical" style={{ color: '#fff' }}>
+                                    <Form.Item label="Upload Trailer">
+                                        <Upload
+                                            beforeUpload={() => false}
+                                            accept="video/*"
+                                            maxCount={1}
+                                            onChange={(info) => {
+                                                if (info.file) {
+                                                    uploadMovieTrailer(info.file, selectedMovie?.id);
+                                                }
+                                            }}
+                                        >
+                                            <Button icon={<CloudUploadOutlined />} style={{ backgroundColor: '#4a9eff', color: '#fff', border: 'none' }}>
+                                                Choose Trailer
+                                            </Button>
+                                        </Upload>
+                                    </Form.Item>
+                                    {uploading && <Progress percent={uploadProgress} />}
+                                    <div style={{ marginTop: 12 }}>
+                                        {trailers.map(t => (
+                                            <div key={t.id} style={{ marginBottom: 8 }}>
+                                                <a href={t.video_url} target="_blank" rel="noreferrer" style={{ color: '#fff' }}>{t.title || t.video_url}</a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Form>
+                            ),
+                        },
+                        {
+                            key: '3',
+                            label: 'Movie Poster',
+                            children: (
+                                <Form layout="vertical" style={{ color: '#fff' }}>
+                                    <Form.Item label="Upload Poster">
+                                        <Upload
+                                            beforeUpload={() => false}
+                                            accept="image/*"
+                                            maxCount={1}
+                                            onChange={(info) => {
+                                                if (info.file) {
+                                                    uploadMoviePoster(info.file, selectedMovie?.id);
+                                                }
+                                            }}
+                                        >
+                                            <Button icon={<CloudUploadOutlined />} style={{ backgroundColor: '#4a9eff', color: '#fff', border: 'none' }}>
+                                                Choose Poster
+                                            </Button>
+                                        </Upload>
+                                    </Form.Item>
+                                    {uploading && <Progress percent={uploadProgress} />}
+                                    <div style={{ marginTop: 12 }}>
+                                        {posters.map(p => (
+                                            <div key={p.id} style={{ marginBottom: 8 }}>
+                                                <a href={p.poster_url} target="_blank" rel="noreferrer" style={{ color: '#fff' }}>{p.title || p.poster_url}</a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Form>
+                            ),
+                        },
+                    ]}
+                />
             </Drawer>
         </div>
     );

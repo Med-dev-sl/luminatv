@@ -15,13 +15,13 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 CREATE POLICY "Users can view their own profile" ON users
-    FOR SELECT USING (auth.uid() = id OR (SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR SELECT USING (auth.uid() = id OR is_admin());
 
 CREATE POLICY "Users can update their own profile" ON users
     FOR UPDATE USING (auth.uid() = id);
 
 CREATE POLICY "Admin can view all users" ON users
-    FOR SELECT USING ((SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR SELECT USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_users_email ON users(email);

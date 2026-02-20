@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { CloudUploadOutlined, PictureOutlined, PlayCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, Drawer, Form, Input, Progress, Select, Space, Spin, Table, Tabs, Upload, message } from 'antd';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../supabaseClient';
-import { Table, Button, Modal, message, Input, Space, Spin, Card, Drawer, Form, Select, Upload, Tabs, Progress } from 'antd';
-import { CloudUploadOutlined, SearchOutlined, PlayCircleOutlined, PictureOutlined } from '@ant-design/icons';
 
 const UpdateMovies = () => {
     const [form] = Form.useForm();

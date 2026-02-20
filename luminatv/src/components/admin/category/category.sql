@@ -20,7 +20,7 @@ CREATE POLICY "Enable read access for all users" ON categories
     FOR SELECT USING (is_active = true);
 
 CREATE POLICY "Enable write access for authenticated admins only" ON categories
-    FOR ALL USING ((SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR ALL USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_categories_slug ON categories(slug);

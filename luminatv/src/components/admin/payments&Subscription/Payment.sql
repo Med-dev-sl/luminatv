@@ -28,10 +28,10 @@ ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 CREATE POLICY "Users can view their own payments" ON payments
-    FOR SELECT USING (auth.uid() = user_id OR (SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR SELECT USING (auth.uid() = user_id OR is_admin());
 
 CREATE POLICY "Only admins can manage payments" ON payments
-    FOR ALL USING ((SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR ALL USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_payments_user_id ON payments(user_id);

@@ -3,19 +3,27 @@ import { useEffect, useState } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import LoginComponent from './components/LoginComponent';
-import Dashboard from './components/admin/dashboard';
-import AddMovies from './components/admin/movies/addMovies';
-import DeleteMovies from './components/admin/movies/deleteMovies';
-import EditMovies from './components/admin/movies/editMovies';
-import UpdateMovies from './components/admin/movies/updateMovies';
 import AddCategory from './components/admin/category/addCategory';
 import DeleteCategory from './components/admin/category/deleteCategory';
 import EditCategory from './components/admin/category/editCategory';
 import UpdateCategory from './components/admin/category/updateCategory';
+import Dashboard from './components/admin/dashboard';
 import AddGenres from './components/admin/genres/addGenres';
 import DeleteGenres from './components/admin/genres/deleteGenres';
 import EditGenres from './components/admin/genres/editGenres';
 import UpdateGenres from './components/admin/genres/updateGenres';
+import AddMovies from './components/admin/movies/addMovies';
+import DeleteMovies from './components/admin/movies/deleteMovies';
+import EditMovies from './components/admin/movies/editMovies';
+import UpdateMovies from './components/admin/movies/updateMovies';
+import AddSeries from './components/admin/series/addSeries';
+import DeleteSeries from './components/admin/series/deleteSeries';
+import EditSeries from './components/admin/series/editSeries';
+import UpdateSeries from './components/admin/series/updateSeries';
+import AddSubscription from './components/admin/subscription/addSubscription';
+import DeleteSubscription from './components/admin/subscription/deleteSubscription';
+import EditSubscription from './components/admin/subscription/editSubscription';
+import UpdateSubscription from './components/admin/subscription/updateSubscription';
 import AddUsers from './components/admin/users/addUsers';
 import DeleteUsers from './components/admin/users/deleteUsers';
 import EditUsers from './components/admin/users/editUsers';
@@ -67,6 +75,14 @@ function App() {
             <Route path="genres/delete" element={<DeleteGenres />} />
             <Route path="genres/edit" element={<EditGenres />} />
             <Route path="genres/update" element={<UpdateGenres />} />
+            <Route path="series/add" element={<AddSeries />} />
+            <Route path="series/delete" element={<DeleteSeries />} />
+            <Route path="series/edit" element={<EditSeries />} />
+            <Route path="series/update" element={<UpdateSeries />} />
+            <Route path="subscription/add" element={<AddSubscription />} />
+            <Route path="subscription/delete" element={<DeleteSubscription />} />
+            <Route path="subscription/edit" element={<EditSubscription />} />
+            <Route path="subscription/update" element={<UpdateSubscription />} />
             <Route path="users/add" element={<AddUsers />} />
             <Route path="users/delete" element={<DeleteUsers />} />
             <Route path="users/edit" element={<EditUsers />} />

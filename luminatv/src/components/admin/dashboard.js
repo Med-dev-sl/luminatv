@@ -1,5 +1,7 @@
 
 import {
+    AppstoreOutlined,
+    BarsOutlined,
     DashboardOutlined,
     DeleteOutlined,
     EditOutlined,
@@ -8,13 +10,11 @@ import {
     MenuUnfoldOutlined,
     PlusOutlined,
     SyncOutlined,
-    VideoCameraOutlined,
-    AppstoreOutlined,
-    BarsOutlined,
+    TeamOutlined,
     UserOutlined,
-    TeamOutlined
+    VideoCameraOutlined
 } from '@ant-design/icons';
-import { Button, Layout, Menu, Modal, theme, ConfigProvider } from 'antd';
+import { Button, ConfigProvider, Layout, Menu, Modal, theme } from 'antd';
 import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
@@ -164,6 +164,68 @@ const Dashboard = () => {
             ],
         },
         {
+            key: 'sub5',
+            icon: <VideoCameraOutlined />,
+            label: 'Series',
+            children: [
+                {
+                    key: '/admin/dashboard/series/add',
+                    icon: <PlusOutlined />,
+                    label: 'Add Series',
+                    onClick: () => navigate('/admin/dashboard/series/add'),
+                },
+                {
+                    key: '/admin/dashboard/series/delete',
+                    icon: <DeleteOutlined />,
+                    label: 'Delete Series',
+                    onClick: () => navigate('/admin/dashboard/series/delete'),
+                },
+                {
+                    key: '/admin/dashboard/series/edit',
+                    icon: <EditOutlined />,
+                    label: 'Edit Series',
+                    onClick: () => navigate('/admin/dashboard/series/edit'),
+                },
+                {
+                    key: '/admin/dashboard/series/update',
+                    icon: <SyncOutlined />,
+                    label: 'Update Series',
+                    onClick: () => navigate('/admin/dashboard/series/update'),
+                },
+            ],
+        },
+        {
+            key: 'sub6',
+            icon: <AppstoreOutlined />,
+            label: 'Subscription',
+            children: [
+                {
+                    key: '/admin/dashboard/subscription/add',
+                    icon: <PlusOutlined />,
+                    label: 'Add Subscription',
+                    onClick: () => navigate('/admin/dashboard/subscription/add'),
+                },
+                {
+                    key: '/admin/dashboard/subscription/delete',
+                    icon: <DeleteOutlined />,
+                    label: 'Delete Subscription',
+                    onClick: () => navigate('/admin/dashboard/subscription/delete'),
+                },
+                {
+                    key: '/admin/dashboard/subscription/edit',
+                    icon: <EditOutlined />,
+                    label: 'Edit Subscription',
+                    onClick: () => navigate('/admin/dashboard/subscription/edit'),
+                },
+                {
+                    key: '/admin/dashboard/subscription/update',
+                    icon: <SyncOutlined />,
+                    label: 'Update Subscription',
+                    onClick: () => navigate('/admin/dashboard/subscription/update'),
+                },
+            ],
+        },
+        {
             key: 'sub4',
             icon: <UserOutlined />,
             label: 'Users',
@@ -241,6 +303,12 @@ const Dashboard = () => {
         }
         if (location.pathname.includes('/genres')) {
             return ['sub3'];
+        }
+        if (location.pathname.includes('/series')) {
+            return ['sub5'];
+        }
+        if (location.pathname.includes('/subscription')) {
+            return ['sub6'];
         }
         if (location.pathname.includes('/users')) {
             if (location.pathname.includes('/roles')) {

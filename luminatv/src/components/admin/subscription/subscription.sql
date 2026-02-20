@@ -27,10 +27,7 @@ CREATE POLICY "Enable read access for all users" ON subscription_plans
     FOR SELECT USING (is_active = true);
 
 CREATE POLICY "Enable write access for finance admin and admin only" ON subscription_plans
-    FOR ALL USING (
-        (SELECT role FROM user_roles WHERE user_id = auth.uid() LIMIT 1) IN ('finance_admin', 'admin')
-        OR (SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin'
-    );
+    FOR ALL USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_subscription_plans_slug ON subscription_plans(slug);

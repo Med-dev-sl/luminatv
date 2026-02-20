@@ -31,7 +31,7 @@ CREATE POLICY "Enable read access for all users" ON series
     FOR SELECT USING (true);
 
 CREATE POLICY "Enable write access for admins only" ON series
-    FOR ALL USING ((SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR ALL USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_series_title ON series(title);

@@ -18,7 +18,7 @@ CREATE POLICY "Enable read access for all users" ON genres
     FOR SELECT USING (is_active = true);
 
 CREATE POLICY "Enable write access for authenticated admins only" ON genres
-    FOR ALL USING ((SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR ALL USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_genres_slug ON genres(slug);

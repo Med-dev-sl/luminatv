@@ -29,10 +29,10 @@ ALTER TABLE movies ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 CREATE POLICY "Enable read access for published movies" ON movies
-    FOR SELECT USING (status = 'published' OR (SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR SELECT USING (status = 'published' OR is_admin());
 
 CREATE POLICY "Enable write access for admins only" ON movies
-    FOR ALL USING ((SELECT subscription_status FROM users WHERE id = auth.uid()) = 'admin');
+    FOR ALL USING (is_admin());
 
 -- Indexes
 CREATE INDEX idx_movies_title ON movies(title);
