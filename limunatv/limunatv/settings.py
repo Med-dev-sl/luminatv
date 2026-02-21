@@ -111,11 +111,8 @@ except ImportError:
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Always use WhiteNoise for serving static files
 ]
-
-# Add WhiteNoise for static files in production
-if not DEBUG:
-    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Add CORS middleware early if available
 try:
@@ -209,9 +206,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise for serving static files in production
-if not DEBUG:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+# WhiteNoise configuration for serving static files
+WHITENOISE_AUTOREFRESH = DEBUG
+WHITENOISE_USE_FINDERS = DEBUG
+WHITENOISE_COMPRESS_OFFLINE = not DEBUG
+WHITENOISE_COMPRESS_LEVEL = 9 if not DEBUG else 6
 
 # ------------------ Security hardening defaults ------------------
 # Cookie security (disabled in DEBUG for easier development)
