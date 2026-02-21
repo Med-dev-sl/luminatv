@@ -53,6 +53,18 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 # ALLOWED_HOSTS must be set in production, provide a comma-separated list via env var.
 ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(',') if h]
 
+# CORS configuration for React Native / Expo frontend
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Local development
+    'http://localhost:8081',  # Expo dev server
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8081',
+]
+
+# For production, add your frontend URLs from environment variable
+if frontend_origins := os.environ.get('CORS_ALLOWED_ORIGINS'):
+    CORS_ALLOWED_ORIGINS.extend(frontend_origins.split(','))
+
 
 # Application definition
 
@@ -65,10 +77,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Content Security Policy app (django-csp)
     'csp',
+    # CORS support for frontend access
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # CORS middleware should run early
+    'corsheaders.middleware.CorsMiddleware',
     # CSP middleware should run early to add CSP headers
     'csp.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
