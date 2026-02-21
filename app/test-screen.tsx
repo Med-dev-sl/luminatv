@@ -5,13 +5,13 @@
  * Usage in app: import { APITestScreen } from '@/components/APITestScreen';
  */
 
-import React, { useState } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import {
-  testBackendConnection,
-  testBackendStatus,
-  runAllAPITests,
+    runAllAPITests,
+    testBackendConnection,
+    testBackendStatus,
 } from '@/lib/api-test';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface TestResult {
   name: string;
