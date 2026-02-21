@@ -79,18 +79,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Content Security Policy app (django-csp)
-    'csp',
-    # CORS support for frontend access
-    'corsheaders',
 ]
+
+# Add optional apps if available
+try:
+    import csp
+    INSTALLED_APPS.append('csp')
+except ImportError:
+    pass
+
+try:
+    import corsheaders
+    INSTALLED_APPS.append('corsheaders')
+except ImportError:
+    pass
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # CORS middleware should run early
-    'corsheaders.middleware.CorsMiddleware',
-    # CSP middleware should run early to add CSP headers
-    'csp.middleware.CSPMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -98,6 +103,22 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Add optional middleware if available
+middleware_to_add = []
+try:
+    import corsheaders
+    middleware_to_add.insert(0, 'corsheaders.middleware.CorsMiddleware')
+except ImportError:
+    pass
+
+try:
+    import csp
+    middleware_to_add.append('csp.middleware.CSPMiddleware')
+except ImportError:
+    pass
+
+MIDDLEWARE = middleware_to_add + MIDDLEWARE
 
 ROOT_URLCONF = 'limunatv.urls'
 
