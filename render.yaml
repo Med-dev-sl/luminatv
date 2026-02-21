@@ -1,11 +1,11 @@
 services:
   - type: web
     name: luminatv-backend
-    rootDir: limunatv
+    rootDir: .
     runtime: python
     pythonVersion: 3.14
-    buildCommand: bash render-build.sh
-    startCommand: gunicorn --workers 2 --bind 0.0.0.0:$PORT limunatv.wsgi:application
+    buildCommand: bash limunatv/render-build.sh
+    startCommand: bash -c "cd limunatv && gunicorn --workers 2 --bind 0.0.0.0:$PORT limunatv.wsgi:application"
     
     # Environment variables (set via Render dashboard except marked [set manually])
     envVars:
