@@ -5,7 +5,7 @@ services:
     runtime: python
     pythonVersion: 3.14
     buildCommand: bash render-build.sh
-    startCommand: gunicorn --workers 2 --bind 0.0.0.0:$PORT luminatv.wsgi:application
+    startCommand: gunicorn --workers 2 --bind 0.0.0.0:$PORT limunatv.wsgi:application
     
     # Environment variables (set via Render dashboard except marked [set manually])
     envVars:
