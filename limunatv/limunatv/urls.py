@@ -16,19 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.views.generic import TemplateView
 from django.http import JsonResponse, HttpResponse
 from .views_csp import csp_report
 from .views_health import health_check, status
 
 def home(request):
     """Simple home view showing API is running"""
-    return JsonResponse({
-        'message': 'LuminaTV API is running',
-        'version': '1.0',
-        'health_check': '/health/',
-        'api_status': '/status/'
-    })
+    try:
+        return JsonResponse({
+            'message': 'LuminaTV API is running',
+            'version': '1.0',
+            'health_check': '/health/',
+            'api_status': '/status/'
+        })
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in home view: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
 
 def favicon(request):
     """Serve favicon - 204 No Content to suppress browser errors"""

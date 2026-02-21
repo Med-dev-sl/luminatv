@@ -111,29 +111,35 @@ except ImportError:
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+]
+
+# Add WhiteNoise for static files in production
+if not DEBUG:
+    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
+
+# Add CORS middleware early if available
+try:
+    import corsheaders
+    MIDDLEWARE.append('corsheaders.middleware.CorsMiddleware')
+except ImportError:
+    pass
+
+# Add remaining core middleware
+MIDDLEWARE.extend([
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+])
 
-# Add optional middleware if available
-middleware_to_add = []
-try:
-    import corsheaders
-    middleware_to_add.insert(0, 'corsheaders.middleware.CorsMiddleware')
-except ImportError:
-    pass
-
+# Add CSP middleware if available
 try:
     import csp
-    middleware_to_add.append('csp.middleware.CSPMiddleware')
+    MIDDLEWARE.append('csp.middleware.CSPMiddleware')
 except ImportError:
     pass
-
-MIDDLEWARE = middleware_to_add + MIDDLEWARE
 
 ROOT_URLCONF = 'limunatv.urls'
 
@@ -272,12 +278,28 @@ CONTENT_SECURITY_POLICY = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO' if DEBUG else 'WARNING',
+    },
     'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO' if DEBUG else 'WARNING',
+            'propagate': False,
+        },
         'csp': {
             'handlers': ['console'],
             'level': 'INFO',
