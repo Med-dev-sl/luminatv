@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .views_csp import csp_report
 from .views_health import health_check, status
 
@@ -30,8 +30,13 @@ def home(request):
         'api_status': '/status/'
     })
 
+def favicon(request):
+    """Serve favicon - 204 No Content to suppress browser errors"""
+    return HttpResponse(status=204)
+
 urlpatterns = [
     path('', home, name='home'),
+    path('favicon.ico', favicon, name='favicon'),
     path('admin/', admin.site.urls),
     # CSP report receiver
     path('csp-report/', csp_report, name='csp-report'),
