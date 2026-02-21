@@ -15,9 +15,17 @@ import os
 import sys
 from django.core.management.utils import get_random_secret_key
 
-# Add parent directory to path to import utils_keyvault
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from utils_keyvault import get_secret_or_env
+# Helper function to get secrets
+def get_secret_or_env(key, default=None):
+    """Get value from environment variable or return default"""
+    return os.environ.get(key, default)
+
+# Try to import advanced secret management if available
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+    from utils_keyvault import get_secret_or_env
+except ImportError:
+    pass  # Fall back to basic env var access
 
 # Initialize Sentry for error tracking and security monitoring (optional)
 try:
@@ -52,10 +60,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = get_secret_or_env('DJANGO_SECRET_KEY', os.environ.get('DJANGO_SECRET_KEY', get_random_secret_key()))
 
 # DEBUG should be False in production. Use env var 'DJANGO_DEBUG' to enable when needed.
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
+# On Render, enable DEBUG if not explicitly set to see errors
+IS_RENDER = os.environ.get('RENDER') == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'true' if IS_RENDER else 'False').lower() in ('true', '1', 'yes')
 
-# ALLOWED_HOSTS must be set in production, provide a comma-separated list via env var.
-ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(',') if h]
+# ALLOWED_HOSTS must be set in production. On Render, accept all hosts during debugging.
+if os.environ.get('DJANGO_ALLOWED_HOSTS'):
+    ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS').split(',')
+elif IS_RENDER:
+    ALLOWED_HOSTS = ['*']  # Accept all hosts on Render during initial debugging
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # CORS configuration for React Native / Expo frontend
 CORS_ALLOWED_ORIGINS = [

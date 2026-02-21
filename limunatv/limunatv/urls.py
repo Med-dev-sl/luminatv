@@ -16,10 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.views.generic import TemplateView
+from django.http import JsonResponse
 from .views_csp import csp_report
 from .views_health import health_check, status
 
+def home(request):
+    """Simple home view showing API is running"""
+    return JsonResponse({
+        'message': 'LuminaTV API is running',
+        'version': '1.0',
+        'health_check': '/health/',
+        'api_status': '/status/'
+    })
+
 urlpatterns = [
+    path('', home, name='home'),
     path('admin/', admin.site.urls),
     # CSP report receiver
     path('csp-report/', csp_report, name='csp-report'),
