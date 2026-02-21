@@ -206,6 +206,13 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Media files (for user-uploaded images such as Cast photos)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Local apps
+INSTALLED_APPS.append('casts.apps.CastsConfig')
+
 # WhiteNoise configuration for serving static files
 WHITENOISE_AUTOREFRESH = DEBUG
 WHITENOISE_USE_FINDERS = DEBUG
