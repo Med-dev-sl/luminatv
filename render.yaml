@@ -4,8 +4,8 @@ services:
     rootDir: .
     runtime: python
     pythonVersion: 3.14
-    buildCommand: bash limunatv/render-build.sh
-    startCommand: bash -c "cd limunatv && gunicorn --workers 2 --bind 0.0.0.0:$PORT limunatv.wsgi:application"
+    buildCommand: bash build.sh
+    startCommand: bash start.sh
     
     # Environment variables (set via Render dashboard except marked [set manually])
     envVars:
