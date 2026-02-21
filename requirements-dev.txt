@@ -1,0 +1,8 @@
+# Development & Security Scanning Tools
+# Install with: pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# Security scanners
+safety>=3.0.0        # Scan dependencies for known CVE vulnerabilities
+bandit>=1.7.0        # Scan Python code for common security issues

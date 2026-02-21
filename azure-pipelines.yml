@@ -1,0 +1,90 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  PYTHON_VERSION: '3.14'
+
+jobs:
+  - job: SecurityAndTests
+    displayName: 'Security Scans & Tests'
+    
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: $(PYTHON_VERSION)
+        displayName: 'Set up Python'
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+        displayName: 'Install dependencies'
+
+      - script: python security_check.py --json | tee security-results.json
+        displayName: 'Run Security Checks (Safety & Bandit)'
+
+      - script: |
+          cd limunatv
+          python manage.py check --deploy
+        displayName: 'Django Deployment Checks'
+
+      - script: |
+          cd limunatv
+          python manage.py test
+        displayName: 'Run Django Tests'
+
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish security results'
+        inputs:
+          pathToPublish: 'security-results.json'
+          artifactName: 'security-results'
+        condition: always()
+
+  - job: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: SecurityAndTests
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: $(PYTHON_VERSION)
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        displayName: 'Install dependencies'
+
+      - task: AzureWebApp@1
+        displayName: 'Deploy to Azure App Service'
+        inputs:
+          azureSubscription: '$(AZURE_SUBSCRIPTION)'
+          appType: 'webAppLinux'
+          appName: '$(AZURE_APP_NAME)'
+          runtimeStack: 'PYTHON|3.14'
+          startupCommand: 'gunicorn limunatv.wsgi:application'
+          package: '$(Build.ArtifactStagingDirectory)'
+
+      - script: |
+          # Optional: Ping Sentry with deployment info
+          curl -X POST https://sentry.io/api/0/organizations/YOUR-ORG/releases/ \
+            -H "Authorization: Bearer $(SENTRY_AUTH_TOKEN)" \
+            -d @- <<EOF
+          {
+            "version": "$(Build.SourceVersion)",
+            "projects": ["YOUR_PROJECT_SLUG"]
+          }
+          EOF
+        displayName: 'Notify Sentry of deployment'
+        continueOnError: true

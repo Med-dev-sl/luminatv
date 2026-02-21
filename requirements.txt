@@ -1,0 +1,4 @@
+django-csp
+sentry-sdk
+safety
+bandit
