@@ -1,4 +1,8 @@
+django>=6.0
 django-csp
 sentry-sdk
 safety
 bandit
+gunicorn>=21.0
+azure-identity>=1.0
+azure-keyvault-secrets>=4.7

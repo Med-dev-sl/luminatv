@@ -133,3 +133,26 @@ These environment variables enable the hardened defaults in `limunatv/limunatv/s
 - [ ] Review Sentry dashboard for errors & CSP violations
 - [ ] Update dependencies (`pip list --outdated`)
 - [ ] Run `python manage.py check --deploy`
+
+---
+
+## 🚀 Deployment to Render
+
+Deploy the Django backend to Render.com (free tier available).
+
+**Quick 5-minute setup:**
+1. Push to GitHub (already done ✓)
+2. Go to https://dashboard.render.com and connect GitHub
+3. Create Web Service from this repo
+4. Set environment variables (SENTRY_DSN, DJANGO_ALLOWED_HOSTS)
+5. Deploy
+
+**For production:** Upgrade plan + PostgreSQL + custom domain (see full guide below)
+
+👉 **[See RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)** for:
+- Complete step-by-step setup
+- Environment variables reference
+- Database configuration (SQLite vs PostgreSQL)
+- Monitoring & logs
+- Troubleshooting
+- Cost breakdown & scaling

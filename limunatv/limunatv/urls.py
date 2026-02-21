@@ -17,9 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .views_csp import csp_report
+from .views_health import health_check, status
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # CSP report receiver
     path('csp-report/', csp_report, name='csp-report'),
+    # Health checks (for Render uptime monitoring)
+    path('health/', health_check, name='health-check'),
+    path('status/', status, name='status'),
 ]

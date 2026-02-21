@@ -68,17 +68,17 @@ def get_keyvault_client() -> Optional[SecretClient]:
     return None
 
 
-def get_secret_or_env(secret_name: str, default: str = None) -> str:
+def get_secret_or_env(secret_name: str, default: str = None) -> Optional[str]:
     """
     Retrieve a secret from Key Vault or environment variable.
     Falls back to environment variable if Key Vault is unavailable.
     
     Args:
         secret_name: Name of secret in Key Vault (e.g., 'DJANGO-SECRET-KEY')
-        default: Default value if secret not found anywhere
+        default: Default value if secret not found anywhere (can be None)
     
     Returns:
-        Secret value or default
+        Secret value, default, or None if nothing found and default is None
     """
     # Try environment variable first (for local dev)
     env_key = secret_name.replace('-', '_')
@@ -93,13 +93,10 @@ def get_secret_or_env(secret_name: str, default: str = None) -> str:
             logger.info(f"Loaded secret '{secret_name}' from Key Vault")
             return secret.value
         except Exception as e:
-            logger.warning(f"Failed to load '{secret_name}' from Key Vault: {e}")
+            logger.debug(f"Failed to load '{secret_name}' from Key Vault: {e}")
     
-    # Return default or raise error
-    if default is not None:
-        return default
-    
-    raise ValueError(f"Secret '{secret_name}' not found in Key Vault or environment")
+    # Return default (including None if optional secret not found)
+    return default
 
 
 # Example usage in Django settings.py:

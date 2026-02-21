@@ -12,12 +12,17 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 from django.core.management.utils import get_random_secret_key
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
+# Add parent directory to path to import utils_keyvault
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from utils_keyvault import get_secret_or_env
+
 # Initialize Sentry for error tracking and security monitoring
-sentry_dsn = os.environ.get('SENTRY_DSN')
+sentry_dsn = get_secret_or_env('SENTRY_DSN', os.environ.get('SENTRY_DSN', None))
 if sentry_dsn:
     sentry_sdk.init(
         dsn=sentry_dsn,
@@ -37,9 +42,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY: load sensitive values from environment variables
+# SECURITY: load sensitive values from environment variables or Azure Key Vault
 # In production set `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, and `DJANGO_ALLOWED_HOSTS`.
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_secret_key())
+# For Key Vault: set AZURE_KEYVAULT_NAME env var (uses Managed Identity or service principal credentials)
+SECRET_KEY = get_secret_or_env('DJANGO_SECRET_KEY', os.environ.get('DJANGO_SECRET_KEY', get_random_secret_key()))
 
 # DEBUG should be False in production. Use env var 'DJANGO_DEBUG' to enable when needed.
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')

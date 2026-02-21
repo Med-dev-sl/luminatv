@@ -3,15 +3,67 @@ services:
     name: luminatv-backend
     rootDir: luminatv
     runtime: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate"
-    startCommand: "gunicorn luminatv.wsgi:application"
+    pythonVersion: 3.14
+    
+    # Build & migration commands
+    buildCommand: |
+      pip install -r requirements.txt && \
+      python manage.py collectstatic --no-input && \
+      python manage.py migrate && \
+      python manage.py check --deploy
+    
+    # Start with gunicorn (production-grade WSGI server)
+    startCommand: "gunicorn --workers 2 --worker-class sync --bind 0.0.0.0:$PORT luminatv.wsgi:application"
+    
+    # Environment variables (set via Render dashboard except marked [set manually])
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
+      # Django core security
+      - key: DJANGO_SECRET_KEY
+        generateValue: true  # Render auto-generates a secure key
+      
+      - key: DJANGO_DEBUG
         value: "False"
+      
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "luminatv-backend.onrender.com"  # [UPDATE] Replace with your Render domain
+      
+      # HTTPS & Security Headers (Render handles TLS termination)
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: "True"
+      
+      - key: DJANGO_HSTS_SECONDS
+        value: "31536000"  # 1 year
+      
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: "https://luminatv-backend.onrender.com"  # [UPDATE] Match your domain
+      
+      # CSP settings
+      - key: DJANGO_CSP_REPORT_ONLY
+        value: "False"
+      
+      - key: DJANGO_CSP_REPORT_URI
+        value: ""  # Reports go to local endpoint by default
+      
+      # Sentry error tracking (REQUIRED FOR PRODUCTION)
+      - key: SENTRY_DSN
+        value: "https://4d48079907c44d33b18bd9ce096e555a@o4510922978557952.ingest.de.sentry.io/4510922984783952"  # [SET MANUALLY] Paste your Sentry DSN from sentry.io
+      
+      - key: SENTRY_TRACES_SAMPLE_RATE
+        value: "0.1"  # 10% of transactions for performance monitoring
+      
+      # Gunicorn & worker settings
       - key: WEB_CONCURRENCY
-        value: 2
-    plan: free
+        value: "2"
+      
+      - key: DJANGO_LOG_LEVEL
+        value: "INFO"
+    
+    # Disk: attach a volume for persistent SQLite database
+    disks:
+      - name: db
+        mountPath: /opt/render/db
+        sizeGB: 5
+    
+    plan: standard  # [UPGRADE if needed] free plan: 0.5 CPU, 512MB RAM
+    #numInstances: 1
+    #maxNumInstances: 3  # Auto-scale settings (paid plans)
