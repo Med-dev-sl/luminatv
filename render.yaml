@@ -1,16 +1,12 @@
 services:
   - type: web
     name: luminatv-backend
-    rootDir: luminatv
+    rootDir: limunatv
     runtime: python
     pythonVersion: 3.14
     
     # Build & migration commands
-    buildCommand: |
-      pip install -r requirements.txt && \
-      python manage.py collectstatic --no-input && \
-      python manage.py migrate && \
-      python manage.py check --deploy
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py check --deploy"
     
     # Start with gunicorn (production-grade WSGI server)
     startCommand: "gunicorn --workers 2 --worker-class sync --bind 0.0.0.0:$PORT luminatv.wsgi:application"
