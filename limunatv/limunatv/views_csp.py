@@ -3,9 +3,15 @@ import logging
 
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import sentry_sdk
 
 logger = logging.getLogger('csp')
+
+# Optional Sentry integration
+try:
+    import sentry_sdk
+    HAS_SENTRY = True
+except ImportError:
+    HAS_SENTRY = False
 
 
 @csrf_exempt
@@ -31,7 +37,7 @@ def csp_report(request):
     logger.info('CSP violation reported: %s', json.dumps(report))
 
     # Forward to Sentry if available
-    if sentry_sdk.get_client().is_active():
+    if HAS_SENTRY and sentry_sdk.get_client().is_active():
         sentry_sdk.capture_message(
             f"CSP Violation: {report.get('violated-directive', 'unknown')}",
             level='warning',
