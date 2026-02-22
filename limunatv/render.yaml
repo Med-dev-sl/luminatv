@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: luminatv-backend
+    runtime: python
+    pythonVersion: 3.13.1
+    buildCommand: >
+      pip install -r requirements.txt &&
+      python manage.py migrate --no-input &&
+      python manage.py collectstatic --no-input &&
+      python manage.py check --deploy
+    startCommand: gunicorn --workers 2 --bind 0.0.0.0:$PORT luminatv.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: limunatv.settings
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: luminatv-backend-tre3.onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://luminatv-backend-tre3.onrender.com
+      - key: DJANGO_DEBUG
+        value: "False"
+    disk:
+      name: sqlite-data
+      mountPath: /opt/render/project/src/limunatv
+      sizeGB: 1
